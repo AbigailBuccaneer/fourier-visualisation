@@ -2,10 +2,11 @@
 <html>
 <head>
 <style type="text/css">
-canvas { position: absolute; }
+canvas, div { position: absolute; }
 #canvas { top: 0; left: 0; }
 #graph-horizontal { top: 0; left: 384px; }
 #graph-vertical { top: 384px; left: 0; }
+#explanation { top: 384px; left: 384px; width: 384px;
 </style>
 <script src="palette.js"></script>
 <script type="text/javascript">
@@ -96,8 +97,11 @@ if (document.readyState != "loading") {
 <body>
 <canvas id="canvas" width="384" height="384"></canvas>
 <canvas id="graph-horizontal" width="384" height="384"></canvas>
-
 <canvas id="graph-vertical" width="384" height="384"></canvas>
+
+<div id="explanation">
+    The Fourier series of a square wave is an infinite series of sine waves, each with amplitude inversely proportional to their period.
+</div>
 
 </body>
 </html>
