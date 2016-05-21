@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+canvas { position: absolute; }
+#canvas { top: 0; left: 0; }
+#graph-horizontal { top: 0; left: 384px; }
+#graph-vertical { top: 384px; left: 0; }
+</style>
+<script src="palette.js"></script>
+<script type="text/javascript">
+var time = 0.0;
+var iterations = 10;
+var magnitude = 128.0;
+var lastPositions = Array(iterations);
+
+function setup() {
+    setInterval(draw, 33.3);
+}
+
+function draw() {
+    var colors = palette("tol", iterations);
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    var graphH = document.getElementById("graph-horizontal");
+    var graphHctx = graphH.getContext("2d");
+    var graphV = document.getElementById("graph-vertical");
+    var graphVctx = graphV.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    var image = graphHctx.getImageData(0, 0, graphH.width, graphH.height);
+    graphHctx.clearRect(0, 0, graphH.width, graphH.height);
+    graphHctx.putImageData(image, 2, 0);
+    image = graphVctx.getImageData(0, 0, graphV.width, graphV.height);
+    graphVctx.clearRect(0, 0, graphV.width, graphV.height);
+    graphVctx.putImageData(image, 0, 2);
+
+    ctx.lineWidth = 1.0;
+    var base = { x: magnitude * 3/2, y: magnitude * 3/2 };
+    for (i = 1; i < iterations; ++i) {
+        var k = 2 * i - 1;
+        var size = magnitude / k;
+        var phase = k * time;
+        var offset = { x: size * Math.sin(phase + k * Math.PI/2), y: size * Math.sin(phase) };
+
+        ctx.strokeStyle = "#" + colors[i];
+        ctx.beginPath();
+        ctx.arc(base.x, base.y, size, 0, 2.0*Math.PI);
+        ctx.stroke();
+        ctx.closePath();
+
+        ctx.setLineDash([4, 2]);
+        ctx.beginPath();
+        ctx.moveTo(base.x, base.y);
+        base.x += offset.x; base.y += offset.y;
+        ctx.lineTo(base.x, base.y);
+        ctx.lineTo(canvas.width, base.y);
+        ctx.stroke();
+        ctx.moveTo(base.x, base.y);
+        ctx.lineTo(base.x, canvas.height);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.setLineDash([]);
+
+        if (lastPositions[i] !== undefined) {
+            graphHctx.strokeStyle = ctx.strokeStyle;
+            graphHctx.lineWidth = i == iterations - 1 ? 2.0 : 1.0;
+            graphHctx.beginPath();
+            graphHctx.moveTo(0, base.y);
+            graphHctx.lineTo(2, lastPositions[i].y);
+            graphHctx.stroke();
+            graphHctx.closePath();
+            graphVctx.strokeStyle = ctx.strokeStyle;
+            graphVctx.lineWidth = graphHctx.lineWidth;
+            graphVctx.beginPath();
+            graphVctx.moveTo(base.x, 0);
+            graphVctx.lineTo(lastPositions[i].x, 2);
+            graphVctx.stroke();
+            graphVctx.closePath();
+        }
+        lastPositions[i] = {x: base.x, y: base.y};
+    }
+
+    time += 0.05;
+}
+
+if (document.readyState != "loading") {
+    setup();
+} else {
+    document.addEventListener("DOMContentLoaded", setup);
+}
+</script>
+</head>
+<body>
+<canvas id="canvas" width="384" height="384"></canvas>
+<canvas id="graph-horizontal" width="384" height="384"></canvas>
+
+<canvas id="graph-vertical" width="384" height="384"></canvas>
+
+</body>
+</html>
